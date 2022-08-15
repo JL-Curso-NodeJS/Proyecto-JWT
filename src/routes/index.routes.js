@@ -1,15 +1,26 @@
 // SE ENCARGA DE CONECTAR TODAS LAS RUTAS
 
-const { Router } = require("express") 
+const { Router } = require("express")
 
-const usuarioRoutes = require("./usuario.routes") 
+const usuarioRoutes = require("./usuario.routes")
+const authRoutes = require("./auth.routes")
 
-const rutas_init = () => { 
-  const router = Router() 
+const decodeJWT = require("../middlewares/decodeJWT")
 
-  router.use("/usuarios", usuarioRoutes) 
+const rutas_init = () => {
+  const router = Router()
 
-  return router 
-};
+  router.use("/usuarios", decodeJWT, usuarioRoutes)
 
-module.exports = { rutas_init } 
+  return router
+}
+
+const rutas_auth = () => {
+  const router = Router()
+
+  router.use("/auth", authRoutes)
+
+  return router
+}
+
+module.exports = { rutas_init , rutas_auth } 
