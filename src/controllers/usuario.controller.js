@@ -42,9 +42,14 @@ module.exports = {
         }
     },
 
+
     crear: async (req, res, next) => {
         try {
             const user = await models.usuario.create(req.body)
+
+            // encriptar contraseña con bcrypt
+            user.password = user.cryptPassword(user.password) // encripto la contraseña
+            await user.save() // guardo el usuario
 
             res.json({
                 success: true,
