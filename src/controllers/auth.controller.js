@@ -7,35 +7,37 @@ const signJWT = require('../middlewares/signJWT') // para crear el token
 module.exports = {
 
     login: async (req, res, next) => {
-
-        // 1. Verifico que el usuario exista solo comparando con el email
-        const user = await models.usuario.findOne({
-            where: {
-                email: req.body.email
+        try {
+            // 1. Verifico que el usuario exista solo comparando con el email
+            const user = await models.usuario.findOne({
+                where: {
+                    email: req.body.email
+                }
+            })
+            var contraseniaCoincide = false
+            if (user) {  // Si existe el usuario
+                // 2. Verifico que la contraseña sea correcta
+                contraseniaCoincide = bcrypt.compareSync(req.body.password, user.password) // Comparo la contraseña ingresada con la contraseña de la base de datos
             }
-        })
-        var contraseniaCoincide = false
-        if (user) {  // Si existe el usuario
-            // 2. Verifico que la contraseña sea correcta
-            contraseniaCoincide = bcrypt.compareSync(req.body.password, user.password) // Comparo la contraseña ingresada con la contraseña de la base de datos
-        }
-        if (!user || !contraseniaCoincide) {
-            return next(errors.CredencialesInvalidas)
-        }
-
-
-        // 3. Si todo está bien, devuelvo el token
-        res.json({
-            success: true,
-            data: {
-                token: signJWT(user), // Creo el token con los datos del usuario
-                id: user.id,
-                nombre: user.nombre,
-                apellido: user.apellido,
-                email: user.email,
+            if (!user || !contraseniaCoincide) {
+                return next(errors.CredencialesInvalidas)
             }
-        })
 
+
+            // 3. Si todo está bien, devuelvo el token
+            res.json({
+                success: true,
+                data: {
+                    token: signJWT(user), // Creo el token con los datos del usuario
+                    id: user.id,
+                    nombre: user.nombre,
+                    apellido: user.apellido,
+                    email: user.email,
+                }
+            })
+        } catch (err) {
+            return next(err)
+        }
     },
 
     registrarse: async (req, res, next) => {
